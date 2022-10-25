@@ -21,37 +21,20 @@ groups:
       summary: "Instance {{ $labels.instance }} under high load"
       description: "{{ $labels.instance }} of job {{ $labels.job }} is under high load."
 
-  # Alert for any cluster that has average CPU idle < 50%
-  - alert: HighUsage
-    expr: avg(irate(node_cpu_seconds_total{mode="idle"}[1m]) * 100) < 50
-    for: 1m
+  - alert: HostHighCpuLoad
+    expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+    for: 0m
+    labels:
+      severity: warning
     annotations:
-      summary: "High usage on {{ $labels.instance }}"
-      description: "{{ $labels.instance }} has a average CPU idle (current value: {{ $value }}s)"
+      summary: Host high CPU load (instance {{ $labels.instance }})
+      description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
   - alert: HostOutOfMemory
-   expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 20
-   for: 2m
-   labels:
-     severity: warning
-   annotations:
-     summary: Host out of memory (instance {{ $labels.instance }})
-     description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-
-  - alert: SpeedtestSlowInternetDownload
-    expr: avg_over_time(speedtest_download[10m]) < 100
-    for: 0m
+    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+    for: 2m
     labels:
       severity: warning
     annotations:
-      summary: SpeedTest Slow Internet Download (instance {{ $labels.instance }})
-      description: "Internet download speed is currently {{humanize $value}} Mbps.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-
-  - alert: SpeedtestSlowInternetUpload
-    expr: avg_over_time(speedtest_upload[10m]) < 20
-    for: 0m
-    labels:
-      severity: warning
-    annotations:
-      summary: SpeedTest Slow Internet Upload (instance {{ $labels.instance }})
-      description: "Internet upload speed is currently {{humanize $value}} Mbps.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      summary: Host out of memory (instance {{ $labels.instance }})
+      description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
