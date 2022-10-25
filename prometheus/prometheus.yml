@@ -72,3 +72,7 @@ scrape_configs:
 
 #     static_configs:
 #          - targets: ['node-exporter:9100']
+
+
+
+# docker swarm join --token SWMTKN-1-65g364t0u82wsl2y9pq4pgcthgb4bpoiohg75knn19tm935iot-8ntlbt9ua1ny3vcmcew68im46
